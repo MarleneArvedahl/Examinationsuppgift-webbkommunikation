@@ -66,3 +66,56 @@ input {
 #save-movie-btn:hover {
     background-color: rgb(234, 173, 222);
 }
+
+#show-info {
+    margin: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-rows: auto;
+    gap: 1rem;
+    width: 100%;
+    
+}
+
+
+.card {
+    max-width: 300px;
+    background-color: #ecf0f5;
+    text-align: center;
+    padding: 1.2rem;
+    box-shadow: 0 5px 15px -10px rgba(31, 18, 53, 0.6);
+    border-radius: 13px;
+    margin: 0 auto;
+    color: rgb(36, 83, 67);
+    font-family: Hedvig Letters Sans;
+}
+
+.have-seen-btn {
+    font-family: Hedvig Letters Sans;
+    color: rgb(36, 83, 67);
+    background-color: white;
+    border: none;
+    border: 2px solid #e8c9e0;
+    border-radius: 6px;
+    box-shadow:0 0 15px 4px rgba(0,0,0,0.08);
+    padding: 8px 12px 8px 12px;
+}
+
+.have-seen-btn:hover {
+    background-color: rgb(234, 173, 222);
+}
+
+.remove-btn {
+    font-family: Hedvig Letters Sans;
+    color: rgb(36, 83, 67);
+    background-color: white;
+    border: none;
+    border: 2px solid #e8c9e0;
+    border-radius: 6px;
+    box-shadow:0 0 15px 4px rgba(0,0,0,0.08);
+    padding: 8px 12px 8px 12px;
+}
+
+.remove-btn:hover {
+    background-color: rgb(234, 173, 222);
+}
