@@ -105,7 +105,7 @@ input {
     background-color: rgb(234, 173, 222);
 }
 
-.remove-btn {
+.delete-btn {
     font-family: Hedvig Letters Sans;
     color: rgb(36, 83, 67);
     background-color: white;
@@ -116,6 +116,6 @@ input {
     padding: 8px 12px 8px 12px;
 }
 
-.remove-btn:hover {
+.delete-btn:hover {
     background-color: rgb(234, 173, 222);
 }
