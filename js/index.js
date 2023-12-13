@@ -24,7 +24,9 @@ async function getmovies() {
                 title: data.title,
                 genre: data.genre,
                 utgivningsår: data.utgivningsår,
-                id: doc.id
+                id: doc.id,
+                watched: data.watched
+        
             };
             moviesArr.push(formatedMovies);
         });
@@ -35,10 +37,9 @@ async function getmovies() {
     }
     return(moviesArr);
     
-    
 }
 
-const movies = await getmovies();
+let movies = await getmovies();
 createMovieCard(movies)
 
 
@@ -50,7 +51,9 @@ function createMovieCard(formatedMovies) {
         let genre = formatedMovies[i].genre;
         let year = formatedMovies[i].utgivningsår;
         let id = formatedMovies[i].id;
-        console.log(id)
+        let watched = formatedMovies[i].watched;
+        console.log(watched)
+
 
         const containerElem = document.querySelector("#show-info");
         const movieCard = document.createElement("article");
@@ -61,61 +64,88 @@ function createMovieCard(formatedMovies) {
         genreElem.classList.add("genre");
         const yearElem = document.createElement("p");
         yearElem.classList.add("year");
-        const haveSeenbutton = document.createElement("button");
-        haveSeenbutton.classList.add("have-seen-btn");
+        const watchedButton = document.createElement("button");
+        watchedButton.classList.add("watched-btn");
         const deleteMovieButton = document.createElement("button");
         deleteMovieButton.classList.add("delete-btn");
 
-        titleElem.innerHTML = title;
-        genreElem.innerHTML = genre;
-        yearElem.innerHTML = year;
-        haveSeenbutton.innerHTML = "Markera som sedd";
-        deleteMovieButton.innerHTML = "Ta bort film";
+        function updateInnerHTML() {
+            titleElem.innerHTML = title;
+            genreElem.innerHTML = genre;
+            yearElem.innerHTML = year;
+            watchedButton.innerHTML = watched ? 'Den här har jag sett' : "Markera som sedd"; 
+            deleteMovieButton.innerHTML = "Ta bort film";
+            watchedButton.style.backgroundColor = watched ? '#9EE493' : 'white'
+        }
+        updateInnerHTML()
 
         containerElem.append(movieCard);
         movieCard.append(titleElem);
         movieCard.append(genreElem);
         movieCard.append(yearElem);
-        movieCard.append(haveSeenbutton);
+        movieCard.append(watchedButton);
         movieCard.append(deleteMovieButton);
 
         deleteMovieButton.addEventListener("click", async () => {
-            console.log("det klickar");
             const movieId = id;
-            console.log(movieId)
             deleteMovies(movieId)
-            console.log(id)
             movieCard.remove()
-            
         })
+
+        watchedButton.addEventListener('click', async () => {
+            watched = !watched;
+            await updateWatched(watched, id)
+            updateInnerHTML()
+        })
+    }
+}
+
+//funktionen ändrar/uppdaterar booleanen till false/true på det id knappen gäller. Funktionen startas i knappeventet ovan.
+async function updateWatched(newWatched, id) {
+    try {
+        await updateDoc(doc(db, 'Movies', id), {
+            watched: newWatched
+        })
+        console.log(newWatched, id)
+    } catch (error) {
+        console.log(`ERROR: ${error}`);
     }
 }
 
 //skapar upp ett klickevent till min knapp som sen sparar inputvärderna till databasen 
 saveMovieButton.addEventListener("click", async () => {
-    console.log("det klickar");
 
     const inputValueTitle = document.querySelector('#inputValueTitle').value;
     const inputValueGenre = document.querySelector('#inputValueGenre').value;
     const inputValueYear = document.querySelector('#inputValueYear').value;
 
+    const foundTitle = await checkIfTitleExist(inputValueTitle);
+    console.log('foundtitle', foundTitle)
+    if (foundTitle) {
+     document.getElementById('error-text').innerHTML = 'Titeln finns redan'
+     document.getElementById('inputValueTitle').style.border = '2px solid red'
+    } else {
+        await addMovie()
+        location.reload()
+    }
+
+//lägger till film i objectform till min collection 'Movies'.
     async function addMovie() {
         try {
             await addDoc(collection(db, "Movies"), {
                 title: inputValueTitle,
                 genre: inputValueGenre, 
                 utgivningsår: inputValueYear,
+                watched: false
             });
         } catch (error) {
             console.log(`ERROR: ${error}`);
+
         }
-        
     }
-    addMovie()
-    createMovieCard(movies)
 });
 
-
+//tar bort filmer från min databas
 async function deleteMovies(id) {
     try {
         await deleteDoc(doc(db, 'Movies', id));
@@ -123,3 +153,20 @@ async function deleteMovies(id) {
         console.log(`ERROR: ${error}`);
     }
 }
+
+//kollar ifall titeln jag vill lägga till redan finns i databasen eller ej.
+async function checkIfTitleExist(movieTitle) {
+
+    const movieTitleQuery = query(collection(db, 'Movies'), where('title', '==', movieTitle));
+    const existMovieTitle = await getDocs(movieTitleQuery);
+    
+    let foundTitle = false
+    existMovieTitle.forEach(() => {
+        foundTitle = true;
+    });
+
+    return foundTitle;
+}
+
+
+
